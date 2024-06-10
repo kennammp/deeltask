@@ -1,0 +1,704 @@
+# Common tasks and workflows
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+
+:::note
+
+If you are new to the Nmbrs API, please refer to the [**Getting Started**](../category/getting-started) section.
+
+:::
+
+:::tip
+
+Refer to the examples in [**Sending a request**](../overview/sendrequest) to see how to get `employeId`s and `companyId`s.
+
+:::
+
+## Create an Employee
+
+You will use the [**Create Employee **](https://documenter.getpostman.com/view/18344436/2sA3XLDijZ#448c0bb2-f9cb-4df3-8b2e-67ca0050248e) `POST` request to create a new employee record:
+
+
+
+
+<details>
+  <summary>Expand here to see the Create employee <code>POST</code> request body.</summary>
+
+
+
+*Request body*
+
+```bash
+{
+  "PersonalInfo": {
+    "personalInfoId": "0039b188-b5f5-49a6-a3d5-0448ce4042ee",
+    "basicInfo": {
+      "employeeNumber": 98072,
+      "firstName": "John",
+      "firstNameInFull": "string",
+      "prefix": "van der",
+      "initials": "string",
+      "lastName": "Doe",
+      "employeeType": "applicant"
+    },
+    "birthInfo": {
+      "birthDate": "1980-02-27",
+      "birthCountryCodeISO": "NL",
+      "nationalityCodeISO": "PT",
+      "deceasedOn": "1980-02-27",
+      "gender": "unspecified"
+    },
+    "contactInfo": {
+      "privateEmail": "doe@private.com",
+      "businessEmail": "doe@business.com",
+      "businessPhone": "+351222222",
+      "businessMobilePhone": "+351222222",
+      "privatePhone": "+351222222",
+      "privateMobilePhone": "+351222222",
+      "otherPhone": "+351222222"
+    },
+    "partnerInfo": {
+      "partnerPrefix": "string",
+      "partnerName": "string",
+      "ascriptionCode": 0
+    },
+    "period": {
+      "year": 2021,
+      "period": 4
+    },
+    "createdAt": "2021-07-01T10:15:08Z"
+  },
+  "AdditionalEmployeeInfo": {
+    "inServiceDate": "2019-08-24",
+    "defaultEmployeeTemplate": "string"
+  }
+}
+```
+
+</details>
+
+<details>
+  <summary>Expand here to see the Create employee <code>POST</code> request and response examples.</summary>
+
+<Tabs>
+<TabItem value="curl" label="Curl" default>
+
+*Example request*
+
+```bash
+curl --location 'https://api.nmbrsapp.com/api/companies/:companyId/employees' \
+--header 'X-Subscription-Key;' \
+--header 'Accept: application/json' \
+--data-raw '{
+  "PersonalInfo": {
+    "personalInfoId": "0039b188-b5f5-49a6-a3d5-0448ce4042ee",
+    "basicInfo": {
+      "employeeNumber": 98072,
+      "firstName": "John",
+      "firstNameInFull": "string",
+      "prefix": "van der",
+      "initials": "string",
+      "lastName": "Doe",
+      "employeeType": "applicant"
+    },
+    "birthInfo": {
+      "birthDate": "1980-02-27",
+      "birthCountryCodeISO": "NL",
+      "nationalityCodeISO": "PT",
+      "deceasedOn": "1980-02-27",
+      "gender": "unspecified"
+    },
+    "contactInfo": {
+      "privateEmail": "doe@private.com",
+      "businessEmail": "doe@business.com",
+      "businessPhone": "+351222222",
+      "businessMobilePhone": "+351222222",
+      "privatePhone": "+351222222",
+      "privateMobilePhone": "+351222222",
+      "otherPhone": "+351222222"
+    },
+    "partnerInfo": {
+      "partnerPrefix": "string",
+      "partnerName": "string",
+      "ascriptionCode": 0
+    },
+    "period": {
+      "year": 2021,
+      "period": 4
+    },
+    "createdAt": "2021-07-01T10:15:08Z"
+  },
+  "AdditionalEmployeeInfo": {
+    "inServiceDate": "2019-08-24",
+    "defaultEmployeeTemplate": "string"
+  }
+}'
+
+```
+
+*Example response*
+
+```json
+{
+  "employeeId": "d30ec597-bd29-453e-9613-7786297eedcc"
+}
+```
+
+
+</TabItem>
+<TabItem value="python" label="Python" default>
+
+*Example request*
+
+```python
+import requests
+
+url = "https://api.nmbrsapp.com/api/companies/:companyId/employees"
+
+payload = "{
+  "PersonalInfo": {
+    "personalInfoId": "0039b188-b5f5-49a6-a3d5-0448ce4042ee",
+    "basicInfo": {
+      "employeeNumber": 98072,
+      "firstName": "John",
+      "firstNameInFull": "string",
+      "prefix": "van der",
+      "initials": "string",
+      "lastName": "Doe",
+      "employeeType": "applicant"
+    },
+    "birthInfo": {
+      "birthDate": "1980-02-27",
+      "birthCountryCodeISO": "NL",
+      "nationalityCodeISO": "PT",
+      "deceasedOn": "1980-02-27",
+      "gender": "unspecified"
+    },
+    "contactInfo": {
+      "privateEmail": "doe@private.com",
+      "businessEmail": "doe@business.com",
+      "businessPhone": "+351222222",
+      "businessMobilePhone": "+351222222",
+      "privatePhone": "+351222222",
+      "privateMobilePhone": "+351222222",
+      "otherPhone": "+351222222"
+    },
+    "partnerInfo": {
+      "partnerPrefix": "string",
+      "partnerName": "string",
+      "ascriptionCode": 0
+    },
+    "period": {
+      "year": 2021,
+      "period": 4
+    },
+    "createdAt": "2021-07-01T10:15:08Z"
+  },
+  "AdditionalEmployeeInfo": {
+    "inServiceDate": "2019-08-24",
+    "defaultEmployeeTemplate": "string"
+  }
+}"
+headers = {
+  'X-Subscription-Key': '',
+  'Accept': 'application/json'
+}
+
+response = requests.request("POST", url, headers=headers, data=payload)
+
+print(response.text)
+
+```
+*Example response
+
+```json
+
+{
+  "employeeId": "d30ec597-bd29-453e-9613-7786297eedcc"
+}
+```
+
+</TabItem>
+</Tabs>
+
+</details>
+
+
+## View an Employee record
+
+You will use the [**Get an employee**](https://documenter.getpostman.com/view/18344436/2sA3XLDijZ#76e090a9-0bbe-4c91-9e5e-1faffc1da14b) `GET` request to view an employee record:
+
+
+
+
+<details>
+  <summary>Expand here to see the Get an employee <code>GET</code> request and response examples.</summary>
+
+<Tabs>
+<TabItem value="curl" label="Curl" default>
+
+*Example request*
+```bash
+Example request
+curl --location 'https://api.nmbrsapp.com/api/employees/:employeeId?pageNumber=1&pageSize=20' \
+--header 'X-Subscription-Key;' \
+--header 'Accept: application/json'
+
+```
+
+*Example response*
+
+```json
+{
+  "pagination": {
+    "pageNumber": 3,
+    "pageSize": 30,
+    "firstPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=1",
+    "lastPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=7",
+    "totalPages": 10,
+    "totalRecords": 328,
+    "nextPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=4",
+    "previousPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=2"
+  },
+  "data": [
+    {
+      "employeeId": "97963db9-5f26-4a18-a56a-94b5101a0f28",
+      "personalInfo": {
+        "personalInfoId": "0039b188-b5f5-49a6-a3d5-0448ce4042ee",
+        "basicInfo": {
+          "employeeNumber": 98072,
+          "firstName": "John",
+          "prefix": "van der",
+          "lastName": "Doe",
+          "employeeType": "applicant"
+        },
+        "birthInfo": {
+          "birthDate": "1991-01-01T09:29:18Z",
+          "birthCountry": {
+            "codeISO": "NL",
+            "description": "The Netherlands"
+          },
+          "nationality": {
+            "codeISO": "NL",
+            "description": "Dutch"
+          },
+          "deceasedOn": "2019-08-24T14:15:22Z",
+          "gender": "unspecified"
+        },
+        "contactInfo": {
+          "privateEmail": "doe@private.com",
+          "businessEmail": "doe@business.com",
+          "businessPhone": "+351222222",
+          "businessMobilePhone": "+351222222",
+          "privatePhone": "+351222222",
+          "privateMobilePhone": "+351222222",
+          "otherPhone": "+351222222"
+        },
+        "period": {
+          "year": 2021,
+          "period": 4
+        },
+        "createdAt": "2021-07-01T10:15:08Z"
+      },
+      "manager": {
+        "managerId": "2f6aa11c-504a-49a1-903b-e15e79965702",
+        "number": 1,
+        "firstName": "Anouk",
+        "lastName": "van der Bak",
+        "gender": "Female",
+        "department": {
+          "departmentId": "07e0422b-a991-40ad-afa4-c6cab728ab9d",
+          "code": 2,
+          "description": "Sales",
+          "createdAt": "2021-01-01T09:29:18Z"
+        },
+        "function": {
+          "functionId": "ff4cc24d-8542-4d06-80ee-eadbf9708309",
+          "code": 1,
+          "description": "Sales Lead",
+          "createdAt": "2021-01-01T09:29:18Z"
+        },
+        "phoneNumber": "0640986755",
+        "cellphone": "0640986755",
+        "fax": "string",
+        "email": "anoukvanderbak@email.com"
+      },
+      "department": {
+        "departmentId": "07e0422b-a991-40ad-afa4-c6cab728ab9d",
+        "code": 2,
+        "description": "Sales",
+        "createdAt": "2021-01-01T09:29:18Z"
+      },
+      "function": {
+        "functionId": "ff4cc24d-8542-4d06-80ee-eadbf9708309",
+        "code": 1,
+        "description": "Sales Lead",
+        "createdAt": "2021-01-01T09:29:18Z"
+      },
+      "address": {
+        "addressId": "ad96c221-0e84-4a56-befb-58be6cb4d46e",
+        "isDefault": "true",
+        "type": "homeAddress",
+        "street": "Naritaweg",
+        "houseNumber": "70",
+        "houseNumberAddition": "string",
+        "postalCode": "1043BZ",
+        "city": "Amsterdam",
+        "stateProvince": "Noord-Holland",
+        "countryISOCode": "NL",
+        "period": {
+          "year": 2021,
+          "period": 4
+        },
+        "createdAt": "2021-06-07T07:59:11Z"
+      }
+    }
+  ]
+}
+
+
+```
+
+</TabItem>
+<TabItem value="python" label="Python" default>
+
+*Example request*
+
+```python
+import requests
+
+url = "https://api.nmbrsapp.com/api/employees/:employeeId?pageNumber=1&pageSize=20"
+
+payload={}
+headers = {
+  'X-Subscription-Key': '',
+  'Accept': 'application/json'
+}
+
+response = requests.request("GET", url, headers=headers, data=payload)
+
+print(response.text)
+
+```
+
+*Example response*
+
+```json
+{
+  "pagination": {
+    "pageNumber": 3,
+    "pageSize": 30,
+    "firstPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=1",
+    "lastPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=7",
+    "totalPages": 10,
+    "totalRecords": 328,
+    "nextPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=4",
+    "previousPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=2"
+  },
+  "data": [
+    {
+      "employeeId": "97963db9-5f26-4a18-a56a-94b5101a0f28",
+      "personalInfo": {
+        "personalInfoId": "0039b188-b5f5-49a6-a3d5-0448ce4042ee",
+        "basicInfo": {
+          "employeeNumber": 98072,
+          "firstName": "John",
+          "prefix": "van der",
+          "lastName": "Doe",
+          "employeeType": "applicant"
+        },
+        "birthInfo": {
+          "birthDate": "1991-01-01T09:29:18Z",
+          "birthCountry": {
+            "codeISO": "NL",
+            "description": "The Netherlands"
+          },
+          "nationality": {
+            "codeISO": "NL",
+            "description": "Dutch"
+          },
+          "deceasedOn": "2019-08-24T14:15:22Z",
+          "gender": "unspecified"
+        },
+        "contactInfo": {
+          "privateEmail": "doe@private.com",
+          "businessEmail": "doe@business.com",
+          "businessPhone": "+351222222",
+          "businessMobilePhone": "+351222222",
+          "privatePhone": "+351222222",
+          "privateMobilePhone": "+351222222",
+          "otherPhone": "+351222222"
+        },
+        "period": {
+          "year": 2021,
+          "period": 4
+        },
+        "createdAt": "2021-07-01T10:15:08Z"
+      },
+      "manager": {
+        "managerId": "2f6aa11c-504a-49a1-903b-e15e79965702",
+        "number": 1,
+        "firstName": "Anouk",
+        "lastName": "van der Bak",
+        "gender": "Female",
+        "department": {
+          "departmentId": "07e0422b-a991-40ad-afa4-c6cab728ab9d",
+          "code": 2,
+          "description": "Sales",
+          "createdAt": "2021-01-01T09:29:18Z"
+        },
+        "function": {
+          "functionId": "ff4cc24d-8542-4d06-80ee-eadbf9708309",
+          "code": 1,
+          "description": "Sales Lead",
+          "createdAt": "2021-01-01T09:29:18Z"
+        },
+        "phoneNumber": "0640986755",
+        "cellphone": "0640986755",
+        "fax": "string",
+        "email": "anoukvanderbak@email.com"
+      },
+      "department": {
+        "departmentId": "07e0422b-a991-40ad-afa4-c6cab728ab9d",
+        "code": 2,
+        "description": "Sales",
+        "createdAt": "2021-01-01T09:29:18Z"
+      },
+      "function": {
+        "functionId": "ff4cc24d-8542-4d06-80ee-eadbf9708309",
+        "code": 1,
+        "description": "Sales Lead",
+        "createdAt": "2021-01-01T09:29:18Z"
+      },
+      "address": {
+        "addressId": "ad96c221-0e84-4a56-befb-58be6cb4d46e",
+        "isDefault": "true",
+        "type": "homeAddress",
+        "street": "Naritaweg",
+        "houseNumber": "70",
+        "houseNumberAddition": "string",
+        "postalCode": "1043BZ",
+        "city": "Amsterdam",
+        "stateProvince": "Noord-Holland",
+        "countryISOCode": "NL",
+        "period": {
+          "year": 2021,
+          "period": 4
+        },
+        "createdAt": "2021-06-07T07:59:11Z"
+      }
+    }
+  ]
+}
+
+```
+
+</TabItem>
+</Tabs>
+
+</details>
+
+
+## Update employee personal info
+
+You will use the [**Update employee personal info**](https://documenter.getpostman.com/view/18344436/2sA3XLDijZ#3d606c7e-2fe4-41ad-8288-822ea28c4129) `PUT` request to update employee info.
+
+
+<details>
+  <summary>Expand here to see Update employee personal info <code>POST</code> request body.</summary>
+
+```json
+{
+  "PersonalInfo": {
+    "personalInfoId": "0039b188-b5f5-49a6-a3d5-0448ce4042ee",
+    "basicInfo": {
+      "employeeNumber": 98072,
+      "firstName": "John",
+      "firstNameInFull": "string",
+      "prefix": "van der",
+      "initials": "string",
+      "lastName": "Doe",
+      "employeeType": "applicant"
+    },
+    "birthInfo": {
+      "birthDate": "1980-02-27",
+      "birthCountryCodeISO": "NL",
+      "nationalityCodeISO": "PT",
+      "deceasedOn": "1980-02-27",
+      "gender": "unspecified"
+    },
+    "contactInfo": {
+      "privateEmail": "doe@private.com",
+      "businessEmail": "doe@business.com",
+      "businessPhone": "+351222222",
+      "businessMobilePhone": "+351222222",
+      "privatePhone": "+351222222",
+      "privateMobilePhone": "+351222222",
+      "otherPhone": "+351222222"
+    },
+    "partnerInfo": {
+      "partnerPrefix": "string",
+      "partnerName": "string",
+      "ascriptionCode": 0
+    },
+    "period": {
+      "year": 2021,
+      "period": 4
+    },
+    "createdAt": "2021-07-01T10:15:08Z"
+  },
+  "AdditionalEmployeeInfo": {
+    "inServiceDate": "2019-08-24",
+    "defaultEmployeeTemplate": "string"
+  }
+}
+
+```
+
+</details>
+
+<details>
+  <summary>Expand here to see Update employee personal info <code>POST</code> request and response examples.</summary>
+
+<Tabs>
+<TabItem value="curl" label="Curl" default>
+
+*Example request*
+
+```bash
+curl --location --request PUT 'https://api.nmbrsapp.com/api/employees/:employeeId/personalInfo' \
+--header 'X-Subscription-Key;' \
+--header 'Accept: application/json' \
+--data-raw '{
+  "basicInfo": {
+    "employeeNumber": 98072,
+    "firstName": "John",
+    "firstNameInFull": "string",
+    "prefix": "van der",
+    "initials": "string",
+    "lastName": "Doe",
+    "employeeType": "applicant"
+  },
+  "birthInfo": {
+    "birthDate": "2019-08-24T14:15:22Z",
+    "birthCountryCodeISO": "NL",
+    "nationalityCodeISO": "NL",
+    "deceasedOn": "2019-08-24T14:15:22Z",
+    "gender": "unspecified"
+  },
+  "contactInfo": {
+    "privateEmail": "doe@private.com",
+    "businessEmail": "doe@business.com",
+    "businessPhone": "+351222222",
+    "businessMobilePhone": "+351222222",
+    "privatePhone": "+351222222",
+    "privateMobilePhone": "+351222222",
+    "otherPhone": "+351222222"
+  },
+  "partnerInfo": {
+    "partnerPrefix": "string",
+    "partnerName": "string",
+    "ascriptionCode": 0
+  },
+  "period": {
+    "year": 2021,
+    "period": 4
+  }
+}'
+
+
+```
+
+*Example response*
+
+```json
+{
+  "personalInfoId": "ec3b2a24-a68b-e987-c7ce-473b3a6b5b00"
+}
+
+```
+
+
+</TabItem>
+<TabItem value="python" label="Python" default>
+
+*Example request*
+
+```python
+Example request
+import requests
+
+url = "https://api.nmbrsapp.com/api/employees/:employeeId/personalInfo"
+
+payload = "{
+  "PersonalInfo": {
+    "personalInfoId": "0039b188-b5f5-49a6-a3d5-0448ce4042ee",
+    "basicInfo": {
+      "employeeNumber": 98072,
+      "firstName": "John",
+      "firstNameInFull": "string",
+      "prefix": "van der",
+      "initials": "string",
+      "lastName": "Doe",
+      "employeeType": "applicant"
+    },
+    "birthInfo": {
+      "birthDate": "1980-02-27",
+      "birthCountryCodeISO": "NL",
+      "nationalityCodeISO": "PT",
+      "deceasedOn": "1980-02-27",
+      "gender": "unspecified"
+    },
+    "contactInfo": {
+      "privateEmail": "doe@private.com",
+      "businessEmail": "doe@business.com",
+      "businessPhone": "+351222222",
+      "businessMobilePhone": "+351222222",
+      "privatePhone": "+351222222",
+      "privateMobilePhone": "+351222222",
+      "otherPhone": "+351222222"
+    },
+    "partnerInfo": {
+      "partnerPrefix": "string",
+      "partnerName": "string",
+      "ascriptionCode": 0
+    },
+    "period": {
+      "year": 2021,
+      "period": 4
+    },
+    "createdAt": "2021-07-01T10:15:08Z"
+  },
+  "AdditionalEmployeeInfo": {
+    "inServiceDate": "2019-08-24",
+    "defaultEmployeeTemplate": "string"
+  }
+}
+"
+headers = {
+  'X-Subscription-Key': '',
+  'Accept': 'application/json'
+}
+
+response = requests.request("PUT", url, headers=headers, data=payload)
+
+print(response.text)
+
+
+```
+*Example response
+
+```json
+
+{
+  "personalInfoId": "ec3b2a24-a68b-e987-c7ce-473b3a6b5b00"
+}
+
+```
+
+</TabItem>
+</Tabs>
+
+</details>

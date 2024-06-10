@@ -1,0 +1,226 @@
+# Send a Request
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+
+
+## Requirements
+
+To make a request you will need:
+- `access_token`
+- `Subscription_key`
+- `companyId` or `employeeId` (depending on the request)
+
+If you have completed the tasks in the [**Authorization**](auth) section, you should already have your `access_token` and `subscription_key`. You will include them as headers in your requests in the following format:
+
+```bash
+Authorization: "Bearer " + {{access_token}}
+X-Subscription-Key: {{subscription_key}} 
+```
+
+If you do not know the `companyId` or `employeeId`, you will use the following Get requests to list them: 
+
+## Get company IDs
+
+You will use the [**Get company list**](https://documenter.getpostman.com/view/18344436/2sA3XLDijZ#448c0bb2-f9cb-4df3-8b2e-67ca0050248e) request to list your company IDs:
+
+
+
+
+<details>
+  <summary>Expand here to see the Get company list request and response.</summary>
+
+<Tabs>
+<TabItem value="curl" label="Curl" default>
+
+*Example request*
+```bash
+curl --location 'https://api.nmbrsapp.com/api/companies?pageNumber=1&pageSize=20' \
+--header 'X-Subscription-Key;' \
+--header 'Accept: application/json'
+
+```
+*Example response*
+
+```bash
+{
+  "pagination": {
+    "pageNumber": 3,
+    "pageSize": 30,
+    "firstPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=1",
+    "lastPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=7",
+    "totalPages": 10,
+    "totalRecords": 328,
+    "nextPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=4",
+    "previousPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=2"
+  },
+  "data": [
+    {
+      "companyId": "5b6a77c7-6abe-4f31-93dc-2692169e3ea4",
+      "number": "1",
+      "name": "Nmbrs BV",
+      "debtorId": "45d8ad44-ffb8-4691-87d8-7a7a5f4376e9"
+    }
+  ]
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python" default>
+
+*Example request*
+
+```python
+import requests
+
+url = "https://api.nmbrsapp.com/api/companies?pageNumber=1&pageSize=20"
+
+payload={}
+headers = {
+  'X-Subscription-Key': '',
+  'Accept': 'application/json'
+}
+
+response = requests.request("GET", url, headers=headers, data=payload)
+
+print(response.text)
+
+```
+
+*Example response*
+
+```bash
+{
+  "pagination": {
+    "pageNumber": 3,
+    "pageSize": 30,
+    "firstPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=1",
+    "lastPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=7",
+    "totalPages": 10,
+    "totalRecords": 328,
+    "nextPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=4",
+    "previousPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=2"
+  },
+  "data": [
+    {
+      "companyId": "5b6a77c7-6abe-4f31-93dc-2692169e3ea4",
+      "number": "1",
+      "name": "Nmbrs BV",
+      "debtorId": "45d8ad44-ffb8-4691-87d8-7a7a5f4376e9"
+    }
+  ]
+}
+```
+
+</TabItem>
+</Tabs>
+
+</details>
+
+
+## Get employee IDs
+
+You will use the [**Get employee list**](https://documenter.getpostman.com/view/18344436/2sA3XLDijZ#19cc1550-46f8-42f3-9c73-86199c707a68) request to list your employee IDs:
+
+
+
+
+<details>
+  <summary>Expand here to see the Get company list request and response.</summary>
+
+<Tabs>
+<TabItem value="curl" label="Curl" default>
+
+*Example request*
+```bash
+curl --location 'https://api.nmbrsapp.com/api/companies/:companyId/employees?pageNumber=1&pageSize=20&employeeType=payroll%2CformerPayroll' \
+--header 'X-Subscription-Key;' \
+--header 'Accept: application/json'
+
+
+```
+*Example response*
+
+```bash
+{
+  "pagination": {
+    "pageNumber": 3,
+    "pageSize": 30,
+    "firstPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=1",
+    "lastPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=7",
+    "totalPages": 10,
+    "totalRecords": 328,
+    "nextPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=4",
+    "previousPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=2"
+  },
+  "data": [
+    {
+      "employeeId": "492f6362-79a3-4452-8e1d-a83fbe5437c2",
+      "employeeBasicInfo": {
+        "employeeNumber": 98072,
+        "firstName": "John",
+        "firstNameInFull": "string",
+        "prefix": "van der",
+        "initials": "string",
+        "lastName": "Doe",
+        "employeeType": "applicant"
+      }
+    }
+  ]
+}
+
+```
+
+</TabItem>
+<TabItem value="python" label="Python" default>
+
+*Example request*
+
+```python
+import requests
+
+url = "https://api.nmbrsapp.com/api/companies/:companyId/employees?pageNumber=1&pageSize=20&employeeType=payroll,formerPayroll"
+
+payload={}
+headers = {
+  'X-Subscription-Key': '',
+  'Accept': 'application/json'
+}
+
+response = requests.request("GET", url, headers=headers, data=payload)
+
+print(response.text)
+```
+
+*Example response*
+
+```bash
+{
+  "pagination": {
+    "pageNumber": 3,
+    "pageSize": 30,
+    "firstPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=1",
+    "lastPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=7",
+    "totalPages": 10,
+    "totalRecords": 328,
+    "nextPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=4",
+    "previousPage": "https://api.nmbrsapp.com/api/companies/439323/{endpoint}?pageNumber=2"
+  },
+  "data": [
+    {
+      "companyId": "5b6a77c7-6abe-4f31-93dc-2692169e3ea4",
+      "number": "1",
+      "name": "Nmbrs BV",
+      "debtorId": "45d8ad44-ffb8-4691-87d8-7a7a5f4376e9"
+    }
+  ]
+}
+```
+
+</TabItem>
+</Tabs>
+
+</details>
+
+

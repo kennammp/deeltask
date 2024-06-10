@@ -1,0 +1,911 @@
+# Setup Guide
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+
+
+Once the information checklist is completed, we will work with you to create your Private Mobile Network following these steps: 
+
+
+1. [**Provision connectivity between your network and the Edge Point**](#provision-connectivity-between-your-network-and-the-edge-point)
+1. [**Create a site**](#create-a-site)
+1. [**Configure your Mobile Core**](#configure-your-mobile-core)
+1. [**Enable your Mobile Gateway and Edge Point**](#enable-your-mobile-gateway-and-edge-point)
+1. [**Prepare your IAM (Enterprise Mobile Gateway only)**](#prepare-your-iam-enterprise-mobile-gateway-only)
+1. [**Provision your mobile APs**](#provision-your-mobile-aps)
+1. [**SIM provisioning**](#sim-provisioning)
+
+:::tip 
+
+If you have not done so already, please order your SIMs so end to end testing can be done once your network is set up.
+
+:::
+
+## Provision connectivity between your network and the Edge Point
+
+In order to connect the Site where your RAN resides to an Edge Point, you will work with us to provision private network connectivity from your site to the Interconnect service on the Edge Point. The Interconnect supports most transport options, including IPSEC VPN, MPLS (L2VPN or L3VPN) or if your Edge Point is on-prem, or you have footprint at the colo where the Alef infrastructure is, direct ethernet connection.
+
+Once this is complete, your private network will extend to your Edge Point, so all services on the Edge Point, as well as your mobile devices (UEs) will use IP addresses within your internal address space.
+
+
+### Routing
+
+As your services running on the Edge Point will be within your address space, you need to provide us with a routable IP address for the Mobile Gateway (MME). You can either manually create a static route for this on your edge router/firewall, or we can exchange routing updates with your BGP AS.
+
+You must ensure that:
+ - Packets ingressing your network from the Edge Point with UE subnet source addresses are permitted access to the resources required by UE applications.
+ - Packets returning to the UE subnet are routed back down the tunnel towards the Edge Point.
+
+Your mobile APs will communicate with:
+ - The Mobile Gateway over the private link that you have set up to the Edge Point
+ - Your SAS provider over the internet.
+
+
+### Transport Options
+
+#### IPSEC VPN
+
+To bring up IPSec connectivity to an Alef Location, we will work with you to provision your IPSEC phase 1 and 2 tunnels, and a point to point GRE link that will run over the IPSEC tunnel.  
+
+All traffic between your Site and the Edge Point will run across the GRE point to point link.
+
+
+:::note
+
+By default, the following filter is applied to The GRE tunnel:
+- Permit IP SCTP port 36412 S1AP and GTP-u UDP port 2152 traffic to the Mobile Gateway
+- Permit all traffic from/to UE IP subnets
+
+:::
+
+Please provide our engineers with the following information so we can work with you to bring up the IPSECand GRE tunnels:
+
+ - Peer IP
+ - Phase I IKE parameters 
+ - IKE version 
+ - IKE mode
+ - Pre-shared key
+ - Diffie-Hellman group
+ - Authentication Algorithms
+ - Encryption Algorithms
+ - Life-time
+ - Phase II IPSec parameters
+ - protocol: ESP
+ - PFS PFS Perfect Forward Secrecy: Diffie-Hellman Group 
+ - Authentication Algorithms
+ - Encryption Algorithms
+ - GRE tunnel IP information
+
+
+#### MPLS VPN
+
+We support L2VPN and L3VPN, the Edge Point being seen by your MPLS provider network as another branch office. In order to bring up MPLS connectivity to the Edge Point, our engineers will work with you and your MPLS provider to provision the Edge Point as if it is a new branch site on your MPLS network.
+
+#### Direct Connect
+If you have footprint at a colo that is also hosting Alef infrastructure, the Interconnect service can connect directly with your CE router over ethernet at L2 or L3. This also applies if you are installing an Edge Point on-prem, which we refer to as a *Customer Location* Edge Point.
+
+## Create a site
+
+Firstly you will create a site which is the physical location where your RAN (your mobile APs) reside. 
+
+You will use the following `POST` request body with the `/connectivity/v1/account/customersiteaddress` endpoint to create your site:
+
+<details>
+  <summary>Expand here to see the full create site <code>POST</code> request body. </summary>
+
+
+```json
+  {
+    "customer_site_name": "site1",
+    "customer_site_address": {
+      "line1": "100 Main St",
+      "line2": "#123",
+      "city": "Fairfax",
+      "state": "VA",
+      "postal_code": "12345-1234",
+      "country": "US"
+    },
+    "contact_details": {
+      "name": "John Doe",
+      "email": "john@bla.com",
+      "phone_number": "+1 1234567891"
+    },
+    "is_active": true,
+    "is_default_shipping_address": true
+}
+```
+
+</details>
+
+### Examples
+
+<details>
+  <summary>Expand here to see example create site <code>POST</code> requests and responses. </summary>
+
+<Tabs>
+<TabItem value="curl" label="Curl" default>
+
+*Request*
+
+```bash
+curl -X 'POST' \
+'https://api.alefedge.com/connectivity/v1/account/customersiteaddress?Authorization=<API_KEY>' \
+--header 'Content-Type: application/json' \
+--header 'Accept:application/json' \
+-d  '{
+        "customer_site_name": "site1",
+        "customer_site_address": {
+        "line1": "100 Main St",
+        "line2": "#123",
+        "city": "Fairfax",
+        "state": "VA",
+        "postal_code": "12345-1234",
+        "country": "US"
+        },
+        "contact_details": {
+        "name": "John Doe",
+        "email": "john@bla.com",
+        "phone_number": "+1 1234567891"
+    },
+    "is_active": true,
+    "is_default_shipping_address": true
+}'
+```
+
+*Response*
+
+```json
+{
+"customer_site_address_id": "89ac4757fd14b3d1e167e30f",
+"createdAt": "2024-05-21T14:31:58.315Z"
+}
+```
+</TabItem>
+<TabItem value="python" label="Python">
+
+*Request*
+
+```python
+import requests
+import json
+
+url = "https://api.alefedge.com/connectivity/v1/account/customersiteaddress?Authorization=<API_KEY>"
+
+payload = json.dumps({
+    "customer_site_name": "site1",
+    "customer_site_address": {
+    "line1": "100 Main St",
+    "line2": "#123",
+    "city": "Fairfax",
+    "state": "VA",
+    "postal_code": "12345-1234",
+    "country": "US"
+    },
+    "contact_details": {
+    "name": "John Doe",
+    "email": "john@bla.com",
+    "phone_number": "+1 1234567891"
+    },
+    "is_active": True,
+    "is_default_shipping_address": True
+}
+)
+
+headers = {
+'Accept': 'application/json',
+'Content-Type':'application/json'
+}
+
+response = requests.request("POST", url, headers=headers, data=payload)
+
+print(response.text)
+```
+*Response*
+
+```json
+{
+"customer_site_address_id": "89ac4757fd14b3d1e167e30f",
+"createdAt": "2024-05-21T14:31:58.315Z"
+}
+```
+</TabItem>
+</Tabs>
+</details>
+
+:::tip
+Take a note of the returned object ID for your site, as you will need it in the following steps. It will be an alphanumeric string, something like `89ac4757fd14b3d1e167e30f`.
+:::
+
+
+## Configure your Mobile Core
+
+:::info
+
+You will be using the Alef Mobile Network API to carry out the tasks in this section. This is a basic config, Refer to the [**API reference documentation**](https://app.swaggerhub.com/apis-docs/AlefEdgeAPI/alef-mobile_network_api/1.0.0) to learn more about the API and explore the full schema.
+
+:::
+
+You will use the following `POST` request body with the [`/connectivity/v1/networks`](https://app.swaggerhub.com/apis-docs/AlefEdgeAPI/alef-mobile_network_api/1.0.0#/Create%20networks/create_networks_by_id) endpoint to configure your mobile core, including the *Mobile Network* and the *Backbone Network*.
+
+<details>
+  <summary>Expand here to see the create mobile core <code>POST</code> request body. </summary>
+
+```json
+{
+    "backbone-network": [
+        {
+            "name": "backbone-network1",
+            "apn": "my-apn1",
+            "ue-ip-pool": [
+                {
+                    "ip-subnet": "192.168.100.0/24"
+                }
+            ],
+            "transport": {
+                "interface": [
+                    {
+                        "name": "if-1",
+                        "ip-addr": "10.1.1.1/24",
+                        "site": "89ac4757fd14b3d1e167e30f"
+                    }
+                ]
+            },
+            "aaa-server": {
+                "name": "rad1",
+                "radius": {
+                    "host": "40.40.40.3",
+                    "port": 1812,
+                    "transport": "udp"
+                }
+            }
+        }
+    ],
+    "mobile-network": [
+        {
+            "name": "mobile-network1",
+            "backbone-network": [
+                "backbone-network1"
+            ],
+            "mobile-core": [
+                {
+                    "name": "mobile-core1",
+                    "network-integration": true,
+                    "plmn": [
+                        "001001"
+                    ],
+                    "mme": [
+                        {
+                            "group-id": 1,
+                            "code": 1,
+                            "ip-addr": "20.20.20.2"
+                        }
+                    ],
+                    "radius-client": {
+                        "nas-ip-address": "40.40.40.2",
+                        "framed-mtu": 1400,
+                        "auth-server": [
+                            {
+                                "name": "rad1",
+                                "backbone-network": "backbone-network1",
+                                "shared-key": "0x25efabc123fabca",
+                                "priority": 1
+                            }
+                        ]
+                    }
+                }
+            ],
+            "ran": [
+                {
+                    "name": "ran1",
+                    "site": "89ac4757fd14b3d1e167e30f",
+                    "mobile-core-name": "mobile-core1",
+                    "ran-ip-subnet": "10.100.1.0/24",
+                    "mobile-access-point": [
+                        {
+                            "name": "ap1",
+                            "ip-addr": "10.100.1.10"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+```
+</details>
+
+The following section is a breakdown of the request:
+
+### Mobile core `POST` request guide
+
+#### Backbone Network
+
+Connects your Alef private mobile network core and Mobile Gateway to your existing network.
+
+`apn` A tag that identifies your mobile network
+
+```json
+        {
+            "name": "backbone-network1",
+            "apn": "my-apn1",
+        }
+```
+
+`ue-ip-pool` The pool from which IP addresses will be allocated to your mobile devices (UEs)
+
+```json
+            "ue-ip-pool": [
+                {
+                    "ip-subnet": "192.168.100.0/24"
+                }
+            ],
+```
+`transport` defines the interface that connects your private mobile core and Mobile Gateway to the site where your mobile access points are located.
+
+```json
+            "transport": {
+                "interface": [
+                    {
+                        "name": "if-1",
+                        "ip-addr": "10.1.1.1/24",
+                        "site": "89ac4757fd14b3d1e167e30f"
+                    }
+                ]
+            },
+```
+
+`aaa-server` (Enterprise Mobile Gateway only) defines the radius server or radius servers that your mobile core will use for UE authentication and authorization.
+
+```json
+            "aaa-server": {
+                "name": "rad1",
+                "radius": {
+                    "host": "40.40.40.3",
+                    "port": 1812,
+                    "transport": "udp"
+                }
+            }
+```
+
+#### Mobile Network
+
+The core services that enable your Alef private mobile network, that you connect to your existing network using the `backbone-network` that you have just created.
+
+Specify the mobile network `name` and the `backbone-network` your Mobile Network will be using:
+
+```json
+        {
+            "name": "mobile-network1",
+            "backbone-network": [
+                "backbone-network1"
+            ],
+        }
+```
+
+Within the `mobile-network` object there is the `mobile-core` object where you configure the core services for your mobile network:
+
+##### Mobile Core
+
+The `plmn` is the globally unique ID of your private mobile network.  
+Set `network-integration` to `true` if you are using an Enterprise Mobile Gateway.
+
+```json
+            "mobile-core": [
+                {
+                    "name": "mobile-core1",
+                    "network-integration": true,
+                    "plmn": [
+                        "001001"
+                    ],
+                }
+            ]
+```
+Your mobile APs connect to the MME, that manages mobile sessions.
+`group-id` and `code` together form the ID of the `mme`. 
+
+```json
+"mme": [
+                        {
+                            "group-id": 1,
+                            "code": 1,
+                            "ip-addr": "20.20.20.2"
+                        }
+                    ],
+```
+If you are using the Enterprise Mobile Gateway, the radius client communicates with your IAM via the radius servers that you have previously defined in the `backbone-network` object.
+After specifying the radius client’s ip address (`nas-ip-address`) you then define which servers the client will use. You will reference the server object(s) you have previously created, and define the shared secret (`shared-key`) to use for each server, and the server `priority`. 
+
+```json
+                    "radius-client": {
+                        "nas-ip-address": "40.40.40.2",
+                        "framed-mtu": 1400,
+                        "auth-server": [
+                            {
+                                "name": "rad1",
+                                "backbone-network": "backbone-network1",
+                                "shared-key": "0x25efabc123fabca",
+                                "priority": 1
+                            }
+                        ]
+                    }
+```
+
+The RAN is where your mobile APs and mobile devices are located. When creating a `ran`, you specify which `site` it is located at, the mobile core it will use, and the `ran-ip-subnet` that the mobile APs will use for their management IP addresses. You will then specify your mobile APs (`mobile-access-point`) by `name` and IP address.
+
+```json
+            "ran": [
+                {
+                    "name": "ran1",
+                    "site": "89ac4757fd14b3d1e167e30f",
+                    "mobile-core-name": "mobile-core1",
+                    "ran-ip-subnet": "10.100.1.0/24",
+                    "mobile-access-point": [
+                        {
+                            "name": "ap1",
+                            "ip-addr": "10.100.1.10"
+                        }
+                    ]
+                }
+            ]
+```
+### Examples
+
+<details>
+  <summary>Expand here to see example create core <code>POST</code> requests and responses. </summary>
+<Tabs>
+<TabItem value="curl" label="Curl" default>
+
+*Request*
+
+```bash
+curl -X 'POST' \
+'https://api.stage.alefedge.com/connectivity/v1/networks?Authorization=<API_KEY>' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+-d '{
+    "backbone-network": [
+        {
+            "name": "backbone-network1",
+            "apn": "my-apn1",
+            "ue-ip-pool": [
+                {
+                    "ip-subnet": "192.168.100.0/24"
+                }
+            ],
+            "transport": {
+                "interface": [
+                    {
+                        "name": "if-1",
+                        "ip-addr": "10.1.1.1/24",
+                        "site": "89ac4757fd14b3d1e167e30f"
+                    }
+                ]
+            },
+            "aaa-server": {
+                "name": "rad1",
+                "radius": {
+                    "host": "40.40.40.3",
+                    "port": 1812,
+                    "transport": "udp"
+                }
+            }
+        }
+    ],
+    "mobile-network": [
+        {
+            "name": "mobile-network1",
+            "backbone-network": [
+                "backbone-network1"
+            ],
+            "mobile-core": [
+                {
+                    "name": "mobile-core1",
+                    "network-integration": true,
+                    "plmn": [
+                        "001001"
+                    ],
+                    "mme": [
+                        {
+                            "group-id": 1,
+                            "code": 1,
+                            "ip-addr": "20.20.20.2"
+                        }
+                    ],
+                    "radius-client": {
+                        "nas-ip-address": "40.40.40.2",
+                        "framed-mtu": 1400,
+                        "auth-server": [
+                            {
+                                "name": "rad1",
+                                "backbone-network": "backbone-network1",
+                                "shared-key": "0x25efabc123fabca",
+                                "priority": 1
+                            }
+                        ]
+                    }
+                }
+            ],
+            "ran": [
+                {
+                    "name": "ran1",
+                    "site": "89ac4757fd14b3d1e167e30f",
+                    "mobile-core-name": "mobile-core1",
+                    "ran-ip-subnet": "10.100.0.0/16",
+                    "mobile-access-point": [
+                        {
+                            "name": "ap1",
+                            "ip-addr": "10.0.0.1"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}'
+```
+
+*Response*
+
+```json
+{
+    "hasErrors": false,
+    "results": {
+        "mobile-network1": {
+            "account": "65ac4481fd14b3d1e123e123",
+            "name": "mobile-network1",
+            "backbone-network": [
+                "backbone-network1"
+            ],
+            "mobile-core": [
+                "mobile-core1"
+            ],
+            "ran": [
+                {
+                    "name": "ran1",
+                    "site": "89ac4757fd14b3d1e167e30f",
+                    "generation": "4",
+                    "mobile-core-name": "mobile-core1",
+                    "number-of-access-points": 0,
+                    "ran-ip-subnet": "10.100.1.0/24",
+                    "mobile-access-point": [
+                        {
+                            "name": "ap1",
+                            "ip-addr": "10.100.1.10"
+                        }
+                    ]
+                }
+            ],
+            "_id": "6639260e7f18862318d62aa7",
+            "__v": 0
+        }
+    }
+}
+```
+</TabItem>
+<TabItem value="python" label="Python">
+
+*Request*
+
+```python
+import requests
+import json
+
+url = "https://api.alefedge.com/connectivity/v1/networks/?authorization=<API_KEY>"
+
+payload = json.dumps({
+    "backbone-network": [
+        {
+            "name": "backbone-network1",
+            "apn": "my-apn1",
+            "ue-ip-pool": [
+                {
+                    "ip-subnet": "192.168.100.0/24"
+                }
+            ],
+            "transport": {
+                "interface": [
+                    {
+                        "name": "if-1",
+                        "ip-addr": "10.1.1.1/24",
+                        "site": "89ac4757fd14b3d1e167e30f"
+                    }
+                ]
+            },
+            "aaa-server": {
+                "name": "rad1",
+                "radius": {
+                    "host": "40.40.40.3",
+                    "port": 1812,
+                    "transport": "udp"
+                }
+            }
+        }
+    ],
+    "mobile-network": [
+        {
+            "name": "mobile-network1",
+            "backbone-network": [
+                "backbone-network1"
+            ],
+            "mobile-core": [
+                {
+                    "name": "mobile-core1",
+                    "network-integration": True,
+                    "plmn": [
+                        "001001"
+                    ],
+                    "mme": [
+                        {
+                            "group-id": 1,
+                            "code": 1,
+                            "ip-addr": "20.20.20.2"
+                        }
+                    ],
+                    "radius-client": {
+                        "nas-ip-address": "40.40.40.2",
+                        "framed-mtu": 1400,
+                        "auth-server": [
+                            {
+                                "name": "rad1",
+                                "backbone-network": "backbone-network1",
+                                "shared-key": "0x25efabc123fabca",
+                                "priority": 1
+                            }
+                        ]
+                    }
+                }
+            ],
+            "ran": [
+                {
+                    "name": "ran1",
+                    "site": "89ac4757fd14b3d1e167e30f",
+                    "mobile-core-name": "mobile-core1",
+                    "ran-ip-subnet": "10.100.1.0/24",
+                    "mobile-access-point": [
+                        {
+                            "name": "ap1",
+                            "ip-addr": "10.100.1.10"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+)
+
+headers = {
+'Accept': 'application/json',
+'Content-Type':'application/json'
+}
+
+response = requests.request("POST", url, headers=headers, data=payload)
+
+print(response.text)
+```
+*Response*
+
+```json
+{
+    "hasErrors": false,
+    "results": {
+        "mobile-network1": {
+            "account": "65ac4481fd14b3d1e123e123",
+            "name": "mobile-network1",
+            "backbone-network": [
+                "backbone-network1"
+            ],
+            "mobile-core": [
+                "mobile-core1"
+            ],
+            "ran": [
+                {
+                    "name": "ran1",
+                    "site": "89ac4757fd14b3d1e167e30f",
+                    "generation": "4",
+                    "mobile-core-name": "mobile-core1",
+                    "number-of-access-points": 0,
+                    "ran-ip-subnet": "10.100.1.0/24",
+                    "mobile-access-point": [
+                        {
+                            "name": "ap1",
+                            "ip-addr": "10.100.1.10"
+                        }
+                    ]
+                }
+            ],
+            "_id": "6639260e7f18862318d62aa7",
+            "__v": 0
+        }
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+</details>
+
+## Enable your Mobile Gateway and Edge Point
+
+:::caution
+Please wait at least 5 minutes after creating your mobile core before enabling the Mobile Gateway and Edge Point.
+:::
+
+Once you have configured your mobile core, you must finally define the name of your Mobile Gateway, which site it will serve, and the preferred location of the Edge Point it will be running on. The Mobile Gateway will be where your mobile network traffic is presented to your existing network.
+
+:::info
+
+The endpoint URI used for this request will contain the names of the mobile network and mobile core you created, which in this case are `mobile-network1` and `mobile-core1` .
+
+:::
+
+You will use the following `POST` request body with the `connectivity/v1/networks/mobile-network/mobile-network1/mobile-core/mobile-core1/mobile-gateway` endpoint. 
+
+
+
+```json
+{
+    "name": "mobile-gateway1",
+    "geolocation": {
+        "latitude": 42,
+        "longitude": -71
+    },
+    "served-site": [
+        "89ac4757fd14b3d1e167e30f"
+    ]
+}
+```
+
+### Examples
+
+<details>
+  <summary>Expand here to see example enable Mobile Gateway and Edge Point <code>POST</code> request and response. </summary>
+<Tabs>
+<TabItem value="curl" label="Curl" default>
+
+*Request*
+
+```bash
+curl -X 'POST' \
+'https://api.alefedge.com//connectivity/v1/networks/mobile-network/mobile-network1/mobile-core/mobile-core1/mobile-gateway?authorization=<API_KEY>' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+-d '{
+    "name": "mobile-gateway1",
+    "geolocation": {
+        "latitude": 42,
+        "longitude": -71
+    },
+    "served-site": [
+        "89ac4757fd14b3d1e167e30f"
+    ]
+}'
+```
+
+*Response*
+
+:::tip
+
+As we are using a subset of potential API parameters for this example, the response below will contain many `null` values as we have not populated them in this example.
+
+:::
+
+```json
+{
+    "name": "mobile-gateway1",
+    "logical-system": null,
+    "routing-instance": null,
+    "edgepoint": null,
+    "mme-group-id": 1,
+    "mme-code": 1,
+    "sgw-ip-addr": null,
+    "sgi": null,
+    "transport": null,
+    "geolocation": {
+        "latitude": 42,
+        "longitude": -71
+    },
+    "served-site": [
+        "89ac4757fd14b3d1e167e30f"
+    ]
+}
+```
+</TabItem>
+<TabItem value="python" label="Python">
+
+*Request*
+
+```python
+import requests
+import json
+
+url = "https://api.alefedge.com//connectivity/v1/networks/mobile-network/mobile-network1/mobile-core/mobile-core1/mobile-gateway?authorization=<API_KEY>"
+
+payload = json.dumps({
+    "name": "mobile-gateway1",
+    "geolocation": {
+        "latitude": 42,
+        "longitude": -71
+    },
+    "served-site": [
+        "89ac4757fd14b3d1e167e30f"
+    ]
+}
+)
+
+headers = {
+'Accept': 'application/json',
+'Content-Type':'application/json'
+}
+
+response = requests.request("POST", url, headers=headers, data=payload)
+
+print(response.text)
+```
+
+*Response*
+
+:::tip
+
+As we are using a subset of potential API parameters for this example, the response below will contain many `null` values as we have not populated them in this example.
+
+:::
+
+```json
+{
+    "name": "mobile-gateway1",
+    "logical-system": null,
+    "routing-instance": null,
+    "edgepoint": null,
+    "mme-group-id": 1,
+    "mme-code": 1,
+    "sgw-ip-addr": null,
+    "sgi": null,
+    "transport": null,
+    "geolocation": {
+        "latitude": 42,
+        "longitude": -71
+    },
+    "served-site": [
+        "89ac4757fd14b3d1e167e30f"
+    ]
+}
+```
+</TabItem>
+</Tabs>
+</details>
+
+
+## Prepare your IAM (Enterprise Mobile Gateway only)
+
+You will need ensure that your IAM can operate with the EMG’s Radius client. We can provide guidance on this.
+
+### IP Management
+
+You will configure IP pools on the Mobile Gateway from which UEs will be assigned IP addresses, block these out on your IPAM and advise us of the range used for the pool.  Dynamically assigning IP UE IP addresses via your IPAM is on our roadmap, please contact us for details.
+
+## Provision your mobile APs
+
+Once you have installed your mobile APs, and provisioned connectivity from them to your SAS provider, we can assist you with the configuration they need to communicate with the Mobile Gateway on the Edge Point. 
+
+:::note
+
+Best practice is to statically assign AP addresses via your IPAM such that a given AP will always get the same address.
+
+:::
+
+The following parameters will need to be configured on your mobile APs:
+PLMN ID
+TAC
+Cell ID
+Mobile Gateway IP (MME)
+
+
+Once your APs are configured to communicate with the Mobile Gateway, your network infrastructure is ready. 
+
+## SIM Provisioning
+
+If you are using the [**Enterprise Mobile Gateway**](../howitworks/alefnetwork#enterprise-mobile-gateway), you will need to provision your SIMs and keys into your existing ID store. 
+
+If you are using the [**Classic Mobile Gateway**](../howitworks/alefnetwork#classic-mobile-gateway), assuming you are ordering your SIMs from a 3rd party, once you have the SIM information (IMSI, K, Opc) as well as your PLMN, you will send this to us and we will add this information to the ID store in your Mobile Gateway. If we are providing the SIMs, we will do this for you.
